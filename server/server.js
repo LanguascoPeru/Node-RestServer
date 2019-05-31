@@ -1,5 +1,4 @@
 require('./config/config.js');
-
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -27,8 +26,6 @@ app.post('/usuario', function(req, res) {
             persona: body
         });
     }
-
-
 })
 
 app.put('/usuario/:id_usuario', function(req, res) {
