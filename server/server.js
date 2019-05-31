@@ -1,5 +1,9 @@
 require('./config/config.js');
 const express = require('express');
+
+// impoortacion de mongoose
+const mongoose = require('mongoose');
+
 const app = express();
 const bodyParser = require('body-parser');
 
@@ -9,33 +13,18 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
+// creando un midleware propio jalando datos de un archivo controlador
+app.use(require('./routes/usuario.js'));
 
-app.get('/usuario', function(req, res) {
-    res.json('get usuario');
-})
 
-app.post('/usuario', function(req, res) {
-    let body = req.body;
-    if (body.nombre === undefined) {
-        res.status(400).json({
-            ok: false,
-            mensaje: "el nombre es necesario"
-        });
+///--realizando la conexion a la base de datos mongodb
+mongoose.connect('mongodb://localhost:27017/cafe', (err, res) => {
+    if (err) {
+        throw err;
     } else {
-        res.json({
-            persona: body
-        });
+        console.log('base de datos online');
     }
-})
-
-app.put('/usuario/:id_usuario', function(req, res) {
-    let cod_user = req.params.id_usuario;
-    res.json('put usuario :' + cod_user);
-})
-
-app.delete('/usuario', function(req, res) {
-    res.json('delete usuario');
-})
+});
 
 app.listen(process.env.PORT, () => {
     console.log("escuchando en el puerto " + process.env.PORT);
