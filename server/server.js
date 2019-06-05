@@ -17,9 +17,10 @@ app.use(bodyParser.json())
 app.use(require('./routes/usuario.js'));
 
 
-///--realizando la conexion a la base de datos mongodb
-mongoose.connect('mongodb://localhost:27017/cafe', (err, res) => {
+///--realizando la conexion a la base de datos mongodb ,         process.env.URL_BD = es una variable Global que contiene la conexion
+mongoose.connect(process.env.URL_BD, { useNewUrlParser: true, useCreateIndex: true }, (err, res) => {
     if (err) {
+        console.log(err);
         throw err;
     } else {
         console.log('base de datos online');
