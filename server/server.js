@@ -18,7 +18,7 @@ app.use(require('./routes/usuario.js'));
 
 
 ///--realizando la conexion a la base de datos mongodb ,         process.env.URL_BD = es una variable Global que contiene la conexion
-mongoose.connect(process.env.URL_BD, { useNewUrlParser: true, useCreateIndex: true }, (err, res) => {
+mongoose.connect(process.env.URL_BD, { useNewUrlParser: true }, (err, res) => {
     if (err) {
         console.log(err);
         throw err;
