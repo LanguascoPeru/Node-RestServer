@@ -40,7 +40,7 @@ let usuarioSchema = new Schema({
     }
 });
 
-usuarioSchema.methods.toJson = function(){
+usuarioSchema.methods.toJSON = function(){
     let usr = this;
     let usrObject = usr.toObject();
     /// eliminado el campo que no queremos mostrar al usuario una vez que se grabe succed, toda la entidad 
