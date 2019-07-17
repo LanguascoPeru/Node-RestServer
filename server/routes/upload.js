@@ -2,6 +2,8 @@ const express = require('express');
 const fileUpload = require('express-fileupload');
 /// objeto que contiene la informacion del model de la bd
 const Usuario = require('../model/usuario.js');
+const aut = require('../middleware/autentication.js');
+
 //--- file system
 //-- path porque vamos a crear una ruta, existen en node
 const fs = require('fs');
@@ -24,6 +26,7 @@ app.put('/upload/:tipo/:id', (req, res) => {
         });
     }
 
+    //--- validando el tipo ----
     let list_tiposValidos = ['usuarios', 'productos'];
 
     if (list_tiposValidos.indexOf(tipo) < 0) {
@@ -54,6 +57,7 @@ app.put('/upload/:tipo/:id', (req, res) => {
 
     let nombreArchivo = `${id}_${new Date().getMilliseconds()}.${extension}`
 
+    ///--- guardando la imagen en el servidor...
     archivos.mv('upload/' + tipo + '/' + nombreArchivo, function(err) {
         if (err) {
             return res.status(500).json({
@@ -61,40 +65,38 @@ app.put('/upload/:tipo/:id', (req, res) => {
                 mensaje: err
             });
         }
-        imagenUsuario(id, res, nombreArchivo);
+        //----para este punto ya se debio guardar la imagen correctamente..
+        Save_UserImageBD(id, res, tipo, nombreArchivo);
     });
 
 });
 
-function imagenUsuario(id, res, nombreArchivo) {
+function Save_UserImageBD(id, res, tipo, nombreArchivo) {
 
-    ///----consultando el registro por el id
+    ///----consultando el registro por el id para grabar su imagen--
+
+
     Usuario.findById(id, (err, usuarioBD) => {
         if (err) {
+            Delete_Image(tipo, nombreArchivo);
             return res.status(500).json({
                 ok: false,
                 mensaje: err
             });
         }
         if (!usuarioBD) {
+            Delete_Image(tipo, nombreArchivo);
             return res.status(400).json({
                 ok: false,
                 mensaje: "El usuario no existe"
             });
         }
 
-        let pathImagen = path.resolve(__dirname, `../../upload/usuarios/${usuarioBD.img}`);
-        console.log('antes')
-        console.log(pathImagen)
-        if (fs.existsSync(pathImagen)) {
-            console.log('entrooo')
-            console.log(pathImagen)
-            fs.unlinkSync(pathImagen);
-        }
+        //--- si ya posee una imagen en el servidor procederemos a borra la anterior 
+        Delete_Image(tipo, usuarioBD.img);
 
         //----modificando el valor 
         usuarioBD.img = nombreArchivo;
-
         usuarioBD.save((err, usuarioSaved) => {
             if (err) {
                 return res.status(400).json({
@@ -109,6 +111,15 @@ function imagenUsuario(id, res, nombreArchivo) {
         });
 
     });
+}
+
+function Delete_Image(tipo, nombreArchivo) {
+    let pathImagen = path.resolve(__dirname, `../../upload/${tipo}/${nombreArchivo}`);
+
+    //--- si ya posee una imagen en el servidor procederemos a borra la anterior 
+    if (fs.existsSync(pathImagen)) {
+        fs.unlinkSync(pathImagen);
+    }
 }
 
 module.exports = app;
